@@ -2,8 +2,8 @@ import flask
 import requests
 import json
 import random
-import logging
 import threading
+import logging
 
 import sys
 if sys.version_info.major is 2:
@@ -13,11 +13,13 @@ else:
 
 app = flask.Flask(__name__, static_url_path='')
 
+logging.basicConfig(level = logging.INFO,format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 ### DIY Area ###
 
 WALLET_ADDR = "http://127.0.0.1:4003"
 
-PASC_Receiver = "360969" # Maybe one of 
+PASC_Receiver = "7711"
 
 PASA_Receiver = "3GhhbonhKfpLAZYurzU2TAbiCF2gjSgyx896sTKVVLRp8jCZY9ehUuDsZLzT5DVNAdH98Co62v3PEv5yYLR7xsHcCULmy236ir6xwt"
 
@@ -36,7 +38,7 @@ def getCurrentHeight():
     op = '{"jsonrpc":"2.0","method":"getblockcount","id":123}'
     rcv = requests.post(WALLET_ADDR, data=op)
     rcv_fmt = json.loads(rcv.text)
-    print(rcv_fmt)
+    # print(rcv_fmt)
     if rcv_fmt.get("error", None) is None:
         height = int(rcv_fmt.get("result"))
         logging.info("Current Height: " +  str(height))
@@ -63,7 +65,6 @@ def getRandomFreePASA():
 
 @app.route('/')
 def hello_world():
-    # return 'Hello World!'
     return flask.render_template("index.html")
 
 
@@ -75,7 +76,7 @@ def getpasa(pub_key):
         rtn = {"error": "not correct pubkey"}
         return json.dumps(rtn)
 
-    if localVerify(pub_key):
+    if localVerify(pub_key, flask.request.remote_addr):
         pass
     else:
         rtn = {"error": "you have got one!"}
@@ -91,6 +92,7 @@ def getpasa(pub_key):
         # means that no free tx
         todo = pub_key
         Pending_Pool.put(todo)
+        logging.info("New Task for: %s", pub_key)
         rtn = {"success": "needs wait"}
         return json.dumps(rtn)
     pasa = getRandomFreePASA()
@@ -112,9 +114,9 @@ def sendPASA(pasa, pub_key):
     return json.loads(rcv.content)
 
 
-@app.route('/donate')
-def donate():
-    return ("PASC:Account: ", str(PASC_Receiver), ". <br>PASA:PublicKey: ", PASA_Receiver) 
+# @app.route('/donate')
+# def donate():
+#     return ("PASC:Account: ", str(PASC_Receiver), ". <br>PASA:PublicKey: ", PASA_Receiver) 
 
 
 # @app.route('/verify/nano')
@@ -126,12 +128,12 @@ def nanoVerify(pub_key):
             return True
     return False
 
-def localVerify(pub_key):
+def localVerify(pub_key, ip):
     with open("pubkeyList", "r") as p:
         for line in p:
             if pub_key is line.strip():
                 return True
-
+        logging.error("Maybe Malicious: %s || %s", pub_key, ip)
         return False
         
 
@@ -157,12 +159,14 @@ class Service(threading.Thread):
             newTarget = self.pool.get()
             pasa = getRandomFreePASA()
             sendPASA(pasa, newTarget)
+            logging.info("Task Done for: %s", newTarget)
 
 
 if __name__ == '__main__':
+    logging.info("Main Start")
     pasaService = Service(Pending_Pool)
     pasaService.daemon = True
     pasaService.start()
 
     LastHeight = getCurrentHeight()
-    app.run("0.0.0.0", port=8888)
+    app.run("0.0.0.0", port=8888, debug=False)
