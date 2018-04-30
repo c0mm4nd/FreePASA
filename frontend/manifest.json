@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  
+  "name": "NoToDo//不仅待办",
+  "version": "0.0.1",
+  "description": "不仅仅是一个简单的待办",
+  
+  "permissions": [
+    "storage",
+    "notifications",
+    
+    "contextMenus"
+  ],
+  
+  "chrome_url_overrides": {
+    "newtab": "dist/index.html"
+  },
+
+  "author": "Command"
+}

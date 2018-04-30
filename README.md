@@ -2,13 +2,14 @@
 
 A micro-webservice for pure free PASA(PascalCoin Account) Sharing.
 
-Usage:
+## Usage:
 
-Edit the *DIY Area* config in server.py
+1. run your pascalcoin wallet
 
-On your server, run it.
+2. run start_project.sh
 
-```
-python server.py
-```
+## More
 
+will add more verify
+
+will support i18n

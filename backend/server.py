@@ -1,4 +1,3 @@
-# for py3
 import flask
 import requests
 import json
@@ -12,7 +11,7 @@ if sys.version_info.major is 2:
 else:
     import queue
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_url_path='')
 
 ### DIY Area ###
 
@@ -40,7 +39,7 @@ def getCurrentHeight():
     print(rcv_fmt)
     if rcv_fmt.get("error", None) is None:
         height = int(rcv_fmt.get("result"))
-        logging.info("Current Height: ", height)
+        logging.info("Current Height: " +  str(height))
         return height
     else:
         logging.fatal("Error on get height:" + rcv_fmt.get("error"))
@@ -70,38 +69,79 @@ def hello_world():
 
 @app.route('/getpasa/<pub_key>')
 def getpasa(pub_key):
+    if pubkeyVerify(pub_key):
+        pass
+    else:
+        rtn = {"error": "not correct pubkey"}
+        return json.dumps(rtn)
+
+    if localVerify(pub_key):
+        pass
+    else:
+        rtn = {"error": "you have got one!"}
+        return json.dumps(rtn)
+
+    if nanoVerify(pub_key):
+        pass
+    else:
+        rtn = {"error": "not passed the nanopool verify"}
+        return json.dumps(rtn)
+
     if getCurrentHeight() is LastHeight:
         # means that no free tx
         todo = pub_key
         Pending_Pool.put(todo)
-        return "Success, but needs wait"
+        rtn = {"success": "needs wait"}
+        return json.dumps(rtn)
     pasa = getRandomFreePASA()
     rcv_fmt = sendPASA(pasa, pub_key)
     if rcv_fmt.get("error", None) is None:
-        return "Luckily, Finished with message:" + rcv_fmt.get("message", "No message")
+        rtn = {"success": "post on current block"}
+        return json.dumps(rtn)
     else:
-        return "Error"
+        rtn = {"error": rcv_fmt.get("error") }
+        return json.dumps(rtn)
 
-
-@app.route('/getpasa')
-def getpasa_guider():
-    return flask.render_template("guider.html")
 
 def sendPASA(pasa, pub_key):
     operation = '{"jsonrpc":"2.0","method":"changekey","params":{"account":%s,"new_b58_pubkey":"%s","fee":0.0000,"payload":"","payload_method":"none"},"id":123}' % (
         pasa, pub_key, )
     rcv = requests.post(WALLET_ADDR, data=operation)
+    with open("pubkeyList", "a+") as p:
+        p.write(pub_key + '\n')
     return json.loads(rcv.content)
 
 
 @app.route('/donate')
 def donate():
-    return ("PASC:Account: ", str(PASC_Receiver) ". <br>PASA:PublicKey: ", PASA_Receiver) 
+    return ("PASC:Account: ", str(PASC_Receiver), ". <br>PASA:PublicKey: ", PASA_Receiver) 
 
 
-@app.route('/verify/nano')
-def nanoVerify():
-    return ""
+# @app.route('/verify/nano')
+def nanoVerify(pub_key):
+    workerListString = requests.get("https://api.nanopool.org/v1/pasc/workers/" + PASA_Receiver + ".0" )
+    workerList = json.loads(workerListString)
+    for worker in workerList["data"]:
+        if pub_key is worker["id"]:
+            return True
+    return False
+
+def localVerify(pub_key):
+    with open("pubkeyList", "r") as p:
+        for line in p:
+            if pub_key is line.strip():
+                return True
+
+        return False
+        
+
+def pubkeyVerify(pub_key):
+    return len(pub_key) is 102
+
+
+@app.route('/queue')
+def displayQueue():
+    return Pending_Pool.qsize()
 
 
 # a new thread for dealing with the pending pool
@@ -116,7 +156,7 @@ class Service(threading.Thread):
         while True:
             newTarget = self.pool.get()
             pasa = getRandomFreePASA()
-            rcv_fmt = sendPASA(pasa, newTarget)
+            sendPASA(pasa, newTarget)
 
 
 if __name__ == '__main__':
