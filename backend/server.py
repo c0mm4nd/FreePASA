@@ -132,9 +132,9 @@ def localVerify(pub_key, ip):
     with open("pubkeyList", "r") as p:
         for line in p:
             if pub_key is line.strip():
-                return True
-        logging.error("Maybe Malicious: %s || %s", pub_key, ip)
-        return False
+                logging.error("Maybe Malicious: %s || %s", pub_key, ip)
+                return False
+        return True
         
 
 def pubkeyVerify(pub_key):
