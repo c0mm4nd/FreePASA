@@ -5,19 +5,44 @@
       <el-col :span="24"><div class="grid-content ">FreePASA // 免费PascalCoin账户</div></el-col>
     </el-row>
     <el-row :gutter="20">
-      <el-col :span="12"><div class="grid-content bg-purple">1. claymore填dpool为stratum+tcp://pasc-asia1.nanopool.org:15555，dwal为"360969.0.您的公钥"并启动矿机数分钟</div></el-col>
-      <el-col :span="12"><div class="grid-content bg-purple-light">2. 在验证了您的挖矿能力后，将公钥填入下方，即可获得一个免费PascalCoin账户</div></el-col>
+      <el-col :span="12"><div class="grid-content bg-purple">1. claymore填dpool为stratum+tcp://pasc-asia1.nanopool.org:15555，dwal为"7711.0.您的公钥"并启动矿机数分钟</div></el-col>
+      <el-col :span="12"><div class="grid-content bg-purple-light">2. 在验证了您的挖矿能力后，将正确的公钥填入下方并点击确定，成功提示后数分钟即可获得一个免费PascalCoin账户。</div></el-col>
     </el-row>
     <el-row :gutter="20">
-      <el-col :span="8"><div class="grid-content bg-purple"></div></el-col>
-      <el-col :span="8">
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="2"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="12">
+        <div class="grid-content">
+          每个公钥（每人）只可领取一次，恶意行为ip及其获取账户将被曝光在社区与媒体
+        </div>
+      </el-col>
+      <el-col :span="2"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="6"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="6"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+    </el-row>   
+    <el-row :gutter="20">
+      <el-col :span="3"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="18">
         <div>
           <el-input placeholder="" v-model="input">
             <template slot="prepend">公钥：</template>
           </el-input>
         </div>
       </el-col>
-      <el-col :span="8"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="3"><div class="grid-content bg-purple"></div></el-col>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
@@ -37,13 +62,35 @@
       <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
       <el-col :span="5"><div class="grid-content bg-purple-light"></div></el-col>
       <el-col :span="6">
-        <div class="grid-content bg-purple">
-          <el-button v-on:click="getpasa">获取免费账户</el-button>
+        <div class="grid-content">
+          <el-button v-on:click="getpasa()">获取免费账户</el-button>
         </div>
       </el-col>
       <el-col :span="5"><div class="grid-content bg-purple-light"></div></el-col>
       <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
-    </el-row>    
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="4"><div class="grid-content bg-purple"></div></el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="6"><div class="grid-content bg-purple-light"></div></el-col>
+      <el-col :span="6">
+        <div class="grid-content bg-purple">
+          捐赠PASC: 7711-71
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="grid-content bg-purple-light">
+          捐赠PASA: <a v-on:click="servicePubKey">点击获取公钥</a>
+        </div>
+      </el-col>
+      <el-col :span="6"><div class="grid-content bg-purple"></div></el-col>
+    </el-row>        
   </div>
 
 </template>
@@ -61,52 +108,66 @@ export default {
     // .then(function (resp){
     //   // resp must be int here 
     //   console.log("Init")
-    //   // respObj = JSON.parse(resp)
-    //   // if (respObj.error) {
+    //   // resp.data = JSON.parse(resp)
+    //   // if (resp.data.error) {
     //   // }else{
     //   // }
-    //   that.queueNum = respObj
+    //   that.queueNum = resp.data
     // })
   },
-  getpasa(){
-    that = this
-    that.$http.get("/getpasa/" + that.input)
-    .then(function (resp){
-      respObj = JSON.parse(resp)
-      if (respObj.error) {
-        that.$notify.error({
-          title: '发生错误',
-          message: respObj.error
+  methods: {
+    getpasa: function (){
+      console.log("start getpasa")
+      var that = this
+      that.$http.get("/getpasa/" + that.input)
+        .then(function (resp){          
+          if (resp.data.error) {
+            that.$notify.error({
+              title: '发生错误',
+              message: resp.data.error
+            })
+          }
+
+          if (resp.data.success) {
+            that.$notify({
+              title: '成功',
+              message: resp.data.success,
+              type: "success"
+            })        
+          }
         })
-
-      if (respObj.success) {
-        that.$notify({
-          title: '成功',
-          message: respObj.success,
-          type: "success"
-        })        
+        .catch(function (error){          
+          that.$notify.error({
+            title: "发生错误",
+            message: error
+          })
+        })
+    },
+    servicePubKey: function (){
+      var host_pubkey = "3GhhbonhKfpLAZYurzU2TAbiCF2gjSgyx896sTKVVLRp8jCZY9ehUuDsZLzT5DVNAdH98Co62v3PEv5yYLR7xsHcCULmy236ir6xwt"
+      if (event.clipboardData) {
+        return event.clipboardData.setData("text/plain", host_pubkey);  
+      } else if (window.clipboardData) {
+        return window.clipboardData.setData("text", host_pubkey);  
       }
-
-    })
-    .catch(function (error){
-      that.$notify.error({
-        title: "发生错误",
-        message: JSON.stringify(error)
-      })
-    })
+      this.$alert('秘钥: 3GhhbonhKfpLAZYurzU2TAbiCF2gjSgyx896sTKVVLRp8jCZY9ehUuDsZLzT5DVNAdH98Co62v3PEv5yYLR7xsHcCULmy236ir6xwt', '已成功复制到粘贴版', {
+        confirmButtonText: '确定'
+      });
+    }
   }
+
 }
 </script>
 
 <style>
 #app {
-  font-size: 24px;
+  font-size: 18px;
   /* font-family: Helvetica, sans-serif; */
   text-align: center;
 }
 
 .el-row {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
   &:last-child {
     margin-bottom: 0;
   }
@@ -132,5 +193,9 @@ export default {
 .row-bg {
   padding: 10px 0;
   background-color: #f9fafc;
+}
+
+.el-message-box {
+  width: 1111px;
 }
 </style>
