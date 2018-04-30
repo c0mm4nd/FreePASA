@@ -2,6 +2,12 @@
 
 A micro-webservice for pure free PASA(PascalCoin Account) Sharing.
 
+## Requirements
+
+Python (2 or 3) with flask & requirements
+
+Node.js & NPM
+
 ## Usage
 
 1. run your pascalcoin wallet
